@@ -1,0 +1,67 @@
+/**
+ * Definition for singly-linked list.
+ * class ListNode {
+ *     constructor(val = 0, next = null) {
+ *         this.val = val;
+ *         this.next = next;
+ *     }
+ * }
+ */
+
+class Solution {
+    /**
+     * @param {ListNode} head
+     * @param {number} k
+     * @return {ListNode}
+     */
+    reverseKGroup(head, k) {
+        const len = this.getLength(head);
+        const chunks = Math.trunc(len / k); // number of chunks to be reversed
+        const pending = len - chunks * k; // pending nodes from right
+        let prevChunk = null;
+        let start = null;
+      
+        // for each chunk , reverse and connect them 
+        for(let i=1;i<=chunks;i++) {
+            let currentChunk = this.reverseChunk(prevChunk?.nextHead || head,k);
+            if(prevChunk?.tail) {
+                prevChunk.tail.next = currentChunk.head; // connect prev chunk with next one
+            } 
+
+            if(i === 1) {
+                start = currentChunk.head;
+            }
+
+            prevChunk = currentChunk;
+        }
+
+        // if there are any pending nodes connect them to the last chunk tail
+        if(pending > 0) {
+            prevChunk.tail.next = prevChunk.nextHead;
+        }
+        return start;
+    }
+
+    getLength(head) {
+        let count = 0;
+        let curr = head;
+        while (curr) {
+            count += 1;
+            curr = curr.next;
+        }
+        return count;
+    }
+
+    reverseChunk(head, chunkSize) {
+        let curr = head;
+        let prev = null;
+        while (curr && chunkSize) {
+            const temp = curr.next;
+            curr.next = prev;
+            prev = curr;
+            curr=temp;
+            chunkSize-=1;
+        }
+        return {head:prev,tail:head,nextHead:curr};
+    }
+}
